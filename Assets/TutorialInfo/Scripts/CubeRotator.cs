@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using TMPro;
 
 public class CubeRotator : MonoBehaviour
 {
@@ -7,10 +9,21 @@ public class CubeRotator : MonoBehaviour
     [SerializeField] private float accelerationRate = 200f; // 加速率（度/秒²）
     [SerializeField] private float decelerationRate = 100f; // 減速率（度/秒²）
     
+    [Header("UI Elements")]
+    public TextMeshProUGUI xSpeedText; // X軸速度表示用テキスト
+    public TextMeshProUGUI ySpeedText; // Y軸速度表示用テキスト
+    
     private float currentYRotationSpeed = 0f; // Y軸回転速度
     private float currentXRotationSpeed = 0f; // X軸回転速度
     private bool isYRotating = false;
     private bool isXRotating = false;
+    
+    void Start()
+    {
+        // UIテキストの初期化
+        UpdateSpeedUI();
+        Debug.Log("CubeRotator started - UI elements: " + (xSpeedText != null ? "X" : "null") + ", " + (ySpeedText != null ? "Y" : "null"));
+    }
     
     void Update()
     {
@@ -46,6 +59,22 @@ public class CubeRotator : MonoBehaviour
         if (currentYRotationSpeed > 0f || currentXRotationSpeed > 0f)
         {
             transform.Rotate(currentXRotationSpeed * Time.deltaTime, currentYRotationSpeed * Time.deltaTime, 0);
+        }
+        
+        // UIの更新
+        UpdateSpeedUI();
+    }
+    
+    void UpdateSpeedUI()
+    {
+        if (xSpeedText != null)
+        {
+            xSpeedText.text = $"X Speed: {currentXRotationSpeed:F1} deg/s";
+        }
+        
+        if (ySpeedText != null)
+        {
+            ySpeedText.text = $"Y Speed: {currentYRotationSpeed:F1} deg/s";
         }
     }
 } 
