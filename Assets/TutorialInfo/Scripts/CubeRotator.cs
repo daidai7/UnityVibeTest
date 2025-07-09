@@ -7,39 +7,45 @@ public class CubeRotator : MonoBehaviour
     [SerializeField] private float accelerationRate = 200f; // 加速率（度/秒²）
     [SerializeField] private float decelerationRate = 100f; // 減速率（度/秒²）
     
-    private float currentRotationSpeed = 0f; // 現在の回転速度
-    private bool isRotating = false;
+    private float currentYRotationSpeed = 0f; // Y軸回転速度
+    private float currentXRotationSpeed = 0f; // X軸回転速度
+    private bool isYRotating = false;
+    private bool isXRotating = false;
     
     void Update()
     {
-        // 新しいInput Systemでマウスの左ボタンが押されているかチェック
-        if (Mouse.current != null && Mouse.current.leftButton.isPressed)
+        // 新しいInput Systemでマウスのボタン状態をチェック
+        isYRotating = Mouse.current != null && Mouse.current.leftButton.isPressed;
+        isXRotating = Mouse.current != null && Mouse.current.rightButton.isPressed;
+
+        // Y軸回転速度の更新
+        if (isYRotating)
         {
-            isRotating = true;
+            currentYRotationSpeed += accelerationRate * Time.deltaTime;
+            currentYRotationSpeed = Mathf.Min(currentYRotationSpeed, maxRotationSpeed);
         }
         else
         {
-            isRotating = false;
+            currentYRotationSpeed -= decelerationRate * Time.deltaTime;
+            currentYRotationSpeed = Mathf.Max(currentYRotationSpeed, 0f);
         }
-        
-        // 回転速度の更新
-        if (isRotating)
+
+        // X軸回転速度の更新
+        if (isXRotating)
         {
-            // 加速
-            currentRotationSpeed += accelerationRate * Time.deltaTime;
-            currentRotationSpeed = Mathf.Min(currentRotationSpeed, maxRotationSpeed);
+            currentXRotationSpeed += accelerationRate * Time.deltaTime;
+            currentXRotationSpeed = Mathf.Min(currentXRotationSpeed, maxRotationSpeed);
         }
         else
         {
-            // 減速
-            currentRotationSpeed -= decelerationRate * Time.deltaTime;
-            currentRotationSpeed = Mathf.Max(currentRotationSpeed, 0f);
+            currentXRotationSpeed -= decelerationRate * Time.deltaTime;
+            currentXRotationSpeed = Mathf.Max(currentXRotationSpeed, 0f);
         }
-        
+
         // 回転の適用
-        if (currentRotationSpeed > 0f)
+        if (currentYRotationSpeed > 0f || currentXRotationSpeed > 0f)
         {
-            transform.Rotate(0, currentRotationSpeed * Time.deltaTime, 0);
+            transform.Rotate(currentXRotationSpeed * Time.deltaTime, currentYRotationSpeed * Time.deltaTime, 0);
         }
     }
 } 
