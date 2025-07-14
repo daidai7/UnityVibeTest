@@ -1,80 +1,62 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using TMPro;
 
 public class CubeRotator : MonoBehaviour
 {
-    [SerializeField] private float maxRotationSpeed = 500f; // 最高回転速度（度/秒）
-    [SerializeField] private float accelerationRate = 200f; // 加速率（度/秒²）
-    [SerializeField] private float decelerationRate = 100f; // 減速率（度/秒²）
-    
+    [Header("Rotation Settings")]
+    [SerializeField] private float maxRotationSpeed = 500f;      // 最大回転速度（deg/s）
+    [SerializeField] private float acceleration = 200f;          // 加速度（deg/s²）
+    [SerializeField] private float deceleration = 100f;          // 減速度（deg/s²）
+
     [Header("UI Elements")]
-    public TextMeshProUGUI xSpeedText; // X軸速度表示用テキスト
-    public TextMeshProUGUI ySpeedText; // Y軸速度表示用テキスト
-    
-    private float currentYRotationSpeed = 0f; // Y軸回転速度
-    private float currentXRotationSpeed = 0f; // X軸回転速度
-    private bool isYRotating = false;
-    private bool isXRotating = false;
-    
+    public TextMeshProUGUI xSpeedText;
+    public TextMeshProUGUI ySpeedText;
+
+    private float xSpeed = 0f;
+    private float ySpeed = 0f;
+
     void Start()
     {
-        // UIテキストの初期化
         UpdateSpeedUI();
-        Debug.Log("CubeRotator started - UI elements: " + (xSpeedText != null ? "X" : "null") + ", " + (ySpeedText != null ? "Y" : "null"));
+        Debug.Log($"CubeRotator started - UI elements: X:{(xSpeedText != null)}, Y:{(ySpeedText != null)}");
     }
-    
+
     void Update()
     {
-        // 新しいInput Systemでマウスのボタン状態をチェック
-        isYRotating = Mouse.current != null && Mouse.current.leftButton.isPressed;
-        isXRotating = Mouse.current != null && Mouse.current.rightButton.isPressed;
-
-        // Y軸回転速度の更新
-        if (isYRotating)
-        {
-            currentYRotationSpeed += accelerationRate * Time.deltaTime;
-            currentYRotationSpeed = Mathf.Min(currentYRotationSpeed, maxRotationSpeed);
-        }
-        else
-        {
-            currentYRotationSpeed -= decelerationRate * Time.deltaTime;
-            currentYRotationSpeed = Mathf.Max(currentYRotationSpeed, 0f);
-        }
-
-        // X軸回転速度の更新
-        if (isXRotating)
-        {
-            currentXRotationSpeed += accelerationRate * Time.deltaTime;
-            currentXRotationSpeed = Mathf.Min(currentXRotationSpeed, maxRotationSpeed);
-        }
-        else
-        {
-            currentXRotationSpeed -= decelerationRate * Time.deltaTime;
-            currentXRotationSpeed = Mathf.Max(currentXRotationSpeed, 0f);
-        }
-
-        // 回転の適用
-        if (currentYRotationSpeed > 0f || currentXRotationSpeed > 0f)
-        {
-            transform.Rotate(currentXRotationSpeed * Time.deltaTime, currentYRotationSpeed * Time.deltaTime, 0);
-        }
-        
-        // UIの更新
+        UpdateRotationSpeed(ref xSpeed, Mouse.current?.rightButton.isPressed ?? false);
+        UpdateRotationSpeed(ref ySpeed, Mouse.current?.leftButton.isPressed ?? false);
+        ApplyRotation();
         UpdateSpeedUI();
     }
-    
-    void UpdateSpeedUI()
+
+    private void UpdateRotationSpeed(ref float speed, bool isPressed)
+    {
+        if (isPressed)
+        {
+            speed += acceleration * Time.deltaTime;
+            speed = Mathf.Min(speed, maxRotationSpeed);
+        }
+        else
+        {
+            speed -= deceleration * Time.deltaTime;
+            speed = Mathf.Max(speed, 0f);
+        }
+    }
+
+    private void ApplyRotation()
+    {
+        if (xSpeed > 0f || ySpeed > 0f)
+        {
+            transform.Rotate(xSpeed * Time.deltaTime, ySpeed * Time.deltaTime, 0f);
+        }
+    }
+
+    private void UpdateSpeedUI()
     {
         if (xSpeedText != null)
-        {
-            xSpeedText.text = $"X Speed: {currentXRotationSpeed:F1} deg/s";
-        }
-        
+            xSpeedText.text = $"X Speed: {xSpeed:F1} deg/s";
         if (ySpeedText != null)
-        {
-            ySpeedText.text = $"Y Speed: {currentYRotationSpeed:F1} deg/s";
-        }
+            ySpeedText.text = $"Y Speed: {ySpeed:F1} deg/s";
     }
 } 

@@ -71,7 +71,7 @@ public class SpeedUI : MonoBehaviour
         Debug.Log("Setting up CubeRotator...");
         
         // CubeRotatorスクリプトにUIテキストを設定
-        CubeRotator cubeRotator = FindObjectOfType<CubeRotator>();
+        CubeRotator cubeRotator = FindFirstObjectByType<CubeRotator>();
         if (cubeRotator != null)
         {
             cubeRotator.xSpeedText = xSpeedText;
